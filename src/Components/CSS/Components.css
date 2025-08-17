@@ -24,6 +24,9 @@
 .vertex { fill:#e33; stroke:#600; stroke-width:1; }
 .vertex-label { font-size:18px; fill:#222; }
 .centroid-label { font-size:18px; fill:#044; font-weight:600; }
+/* Angles */
+.angle-arc { fill: none; stroke: #2b6cb0; stroke-width: 2; }
+.angle-label { font-size: 16px; fill: #1a365d; font-weight: 600; }
 
 /* Axes and grid */
 .grid-line { stroke: #e6eef7; stroke-width: 1; }

@@ -17,6 +17,49 @@ const DisplayComponent = ({ points = [], onReset }) => {
   const step = 100;
   const ticks = Array.from({ length: size / step + 1 }, (_, i) => i * step);
 
+  // Helpers for angle calculation and arc path
+  const len = (v) => Math.hypot(v.x, v.y);
+  const norm = (v) => {
+    const l = len(v);
+    return l > 1e-6 ? { x: v.x / l, y: v.y / l } : null;
+  };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  const computeAngleData = () => {
+    if (points.length < 3) return [];
+    const svgPts = points.map((p) => ({ x: p.x, y: toSvgY(p.y) }));
+    const r = 32; // arc radius
+    return [0, 1, 2].map((i) => {
+      const prev = svgPts[(i + 2) % 3];
+      const curr = svgPts[i];
+      const next = svgPts[(i + 1) % 3];
+
+      const v1 = norm({ x: prev.x - curr.x, y: prev.y - curr.y });
+      const v2 = norm({ x: next.x - curr.x, y: next.y - curr.y });
+      if (!v1 || !v2) return null;
+
+      const dot = clamp(v1.x * v2.x + v1.y * v2.y, -1, 1);
+      const angleRad = Math.acos(dot);
+      const angleDeg = (angleRad * 180) / Math.PI;
+
+      // Arc endpoints
+      const s = { x: curr.x + v1.x * r, y: curr.y + v1.y * r };
+      const e = { x: curr.x + v2.x * r, y: curr.y + v2.y * r };
+      const cross = v1.x * v2.y - v1.y * v2.x;
+      const sweep = cross > 0 ? 1 : 0;
+      const d = `M ${s.x} ${s.y} A ${r} ${r} 0 0 ${sweep} ${e.x} ${e.y}`;
+
+      // Angle label along internal bisector
+      const bis = norm({ x: v1.x + v2.x, y: v1.y + v2.y }) || { x: 0, y: -1 };
+      const labelDist = r + 22;
+      const label = { x: curr.x + bis.x * labelDist, y: curr.y + bis.y * labelDist };
+
+      return { d, label, angleDeg: Math.round(angleDeg * 10) / 10 };
+    }).filter(Boolean);
+  };
+
+  const angleData = computeAngleData();
+
   return (
     <div className="tc-display">
       <div className="display-header">
@@ -66,6 +109,19 @@ const DisplayComponent = ({ points = [], onReset }) => {
         {/* Triangle */}
         {points.length >= 3 && (
           <polygon points={svgPoints} className="triangle-polygon" />
+        )}
+        {/* Angle arcs and labels */}
+        {points.length >= 3 && (
+          <g className="angles">
+            {angleData.map((a, idx) => (
+              <g key={`ang-${idx}`}>
+                <path d={a.d} className="angle-arc" />
+                <text x={a.label.x} y={a.label.y} className="angle-label" textAnchor="middle">
+                  {a.angleDeg}°
+                </text>
+              </g>
+            ))}
+          </g>
         )}
         {points.map((p, i) => (
           <g key={i}>
