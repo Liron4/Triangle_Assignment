@@ -34,23 +34,16 @@
 .axis-label { font-size: 19px; fill: #4a5568; }
 .display-header { display:flex; align-items:center; justify-content: space-between; gap: 8px; margin: 0 0 4px; }
 
-/* Layout: two panels, responsive, no-scroll */
+/* Layout: two panels, responsive — allow scrolling */
 html, body, #root { height: 100%; }
-.full-page { min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.full-page { min-height: 100vh; display: flex; flex-direction: column; /* allow page scrolling */ }
 .app-header { padding: 8px 12px; }
-.responsive-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; padding: 12px 16px 20px; overflow: hidden; }
-.panel { display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
+.responsive-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; padding: 12px 16px 20px; overflow: auto; }
+.panel { display: flex; justify-content: center; align-items: flex-start; overflow: auto; }
 
-/* Make SVG scale to fit the panel without scroll */
+/* Make SVG scale to fit the panel without forced overflow */
 .triangle-svg { width: 100%; height: auto; max-height: calc(100vh - 220px); }
-
-/* Hide scrollbars (while still allowing content to fit) */
-body { overflow: hidden; }
 
 /* Ensure form doesn’t hit edges; keep gap right and bottom */
 .tc-input-form { margin-bottom: 24px; }
 .responsive-grid { padding-right: 24px; padding-bottom: 24px; }
-/* For Firefox */
-* { scrollbar-width: none; }
-/* For WebKit */
-*::-webkit-scrollbar { display: none; }
